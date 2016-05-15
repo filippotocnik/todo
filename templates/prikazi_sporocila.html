@@ -7,12 +7,16 @@
 <body>
     <h1>Seznam vseh sporočil</h1>
 
-    {% for sporocilo in vsa_sporocila %}
+    {% for task in tasks %}
         <p>
-            <b>{{ sporocilo.ime }}:</b> {{ sporocilo.tekst }}
-            <a href="/sporocilo/{{ sporocilo.key.id() }}">Podrobosti sporočila</a>
+            {{ task.task }}
+            <a href="/task/{{ task.key.id() }}">Podrobosti</a>
         </p>
     {% endfor %}
+
+        <p>
+            <a href="/">New task</a>
+        </p>
 
 </body>
 </html>

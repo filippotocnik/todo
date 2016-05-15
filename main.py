@@ -3,7 +3,7 @@ import os
 import jinja2
 import webapp2
 
-from models import Sporocilo
+from models import Todo
 
 
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
@@ -34,80 +34,78 @@ class MainHandler(BaseHandler):
         return self.render_template("chat.html")
 
 
-class PosljiSporociloHandler(BaseHandler):
+class SendHandler(BaseHandler):
     def post(self):
-        uporabnikovo_ime = self.request.get("ime")
-        uporabnikovo_sporocilo = self.request.get("sporocilo")
+        task = self.request.get("task")
 
-        sporocilo = Sporocilo(ime=uporabnikovo_ime, tekst=uporabnikovo_sporocilo)
-        sporocilo.put()
+        task = Todo(task=task)
+        task.put()
 
         return self.render_template("sporocilo-poslano.html")
 
 
-class PrikaziSporocilaHandler(BaseHandler):
+class ShowAllHandler(BaseHandler):
     def get(self):
-        vsa_sporocila = Sporocilo.query().order(Sporocilo.nastanek).fetch()
+        tasks = Todo.query().order(-Todo.nastanek).fetch()
 
         view_vars = {
-            "vsa_sporocila": vsa_sporocila
+            "tasks": tasks
         }
 
         return self.render_template("prikazi_sporocila.html", view_vars)
 
 
 class PosameznoSporociloHandler(BaseHandler):
-    def get(self, sporocilo_id):
-        sporocilo = Sporocilo.get_by_id(int(sporocilo_id))
+    def get(self, task_id):
+        task = Todo.get_by_id(int(task_id))
 
         view_vars = {
-            "sporocilo": sporocilo
+            "task": task
         }
 
         return self.render_template("posamezno_sporocilo.html", view_vars)
 
 
-class UrediSporociloHandler(BaseHandler):
-    def get(self, sporocilo_id):
-        sporocilo = Sporocilo.get_by_id(int(sporocilo_id))
+class EditHandler(BaseHandler):
+    def get(self, task_id):
+        task = Todo.get_by_id(int(task_id))
 
         view_vars = {
-            "sporocilo": sporocilo
+            "task": task
         }
 
         return self.render_template("uredi_sporocilo.html", view_vars)
 
-    def post(self, sporocilo_id):
-        sporocilo = Sporocilo.get_by_id(int(sporocilo_id))
-        sporocilo.ime = self.request.get("ime")
-        sporocilo.tekst = self.request.get("sporocilo")
-        sporocilo.put()
+    def post(self, task_id):
+        task = Todo.get_by_id(int(task_id))
+        task.ime = self.request.get("task")
+        task.put()
 
-        self.redirect("/sporocilo/" + sporocilo_id)
+        self.redirect("/task/" + task_id)
 
 
-class IzbrisiSporociloHandler(BaseHandler):
-    def get(self, sporocilo_id):
-        sporocilo = Sporocilo.get_by_id(int(sporocilo_id))
+class DeleteHandler(BaseHandler):
+    def get(self, task_id):
+        task = Todo.get_by_id(int(task_id))
 
         view_vars = {
-            "sporocilo": sporocilo
+            "task": task
         }
 
         return self.render_template("izbrisi_sporocilo.html", view_vars)
 
-    def post(self, sporocilo_id):
-        sporocilo = Sporocilo.get_by_id(int(sporocilo_id))
-        sporocilo.key.delete()
+    def post(self, task_id):
+        task = Todo.get_by_id(int(task_id))
+        task.key.delete()
 
-        self.redirect("/prikazi-sporocila")
+        self.redirect("/prikazi_sporocila")
 
 
 app = webapp2.WSGIApplication([
     webapp2.Route('/', MainHandler),
-    webapp2.Route('/poslji-sporocilo', PosljiSporociloHandler),
-    webapp2.Route('/prikazi-sporocila', PrikaziSporocilaHandler),
-    webapp2.Route('/sporocilo/<sporocilo_id:\d+>', PosameznoSporociloHandler),
-    webapp2.Route('/sporocilo/<sporocilo_id:\d+>/uredi', UrediSporociloHandler),
-    webapp2.Route('/sporocilo/<sporocilo_id:\d+>/izbrisi', IzbrisiSporociloHandler),
+    webapp2.Route('/poslji-sporocilo', SendHandler),
+    webapp2.Route('/prikazi_sporocila', ShowAllHandler),
+    webapp2.Route('/task/<task_id:\d+>', PosameznoSporociloHandler),
+    webapp2.Route('/task/<task_id:\d+>/uredi', EditHandler),
+    webapp2.Route('/task/<task_id:\d+>/izbrisi', DeleteHandler),
 ], debug=True)
