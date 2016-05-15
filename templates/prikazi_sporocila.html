@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seznam sporočil</title>
+</head>
+<body>
+    <h1>Seznam vseh sporočil</h1>
+
+    {% for sporocilo in vsa_sporocila %}
+        <p>
+            <b>{{ sporocilo.ime }}:</b> {{ sporocilo.tekst }}
+            <a href="/sporocilo/{{ sporocilo.key.id() }}">Podrobosti sporočila</a>
+        </p>
+    {% endfor %}
+
+</body>
+</html>
