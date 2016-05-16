@@ -33,10 +33,16 @@ class MainHandler(BaseHandler):
     def get(self):
         return self.render_template("chat.html")
 
-
 class SendHandler(BaseHandler):
+    def validation(self, input):
+        input = input.replace("<", "")
+        input = input.replace("</", "")
+        return input
+
     def post(self):
         task = self.request.get("task")
+
+        task = self.validation(task)
 
         task = Todo(task=task)
         task.put()
@@ -76,9 +82,15 @@ class EditHandler(BaseHandler):
 
         return self.render_template("uredi_sporocilo.html", view_vars)
 
+    def validation(self, input):
+        input = input.replace("<", "")
+        input = input.replace("</", "")
+        return input
+
     def post(self, task_id):
         task = Todo.get_by_id(int(task_id))
-        task.ime = self.request.get("task")
+        task.task = self.request.get("task")
+        task.task = self.validation(task.task)
         task.put()
 
         self.redirect("/task/" + task_id)
